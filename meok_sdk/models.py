@@ -42,7 +42,7 @@ class Cert(TypedDict, total=False):
     signature_sha256_hmac: str
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class VerifyResult:
     """Outcome of a public verification call."""
 
@@ -61,7 +61,7 @@ class VerifyResult:
         )
 
 
-@dataclass(slots=True)
+@dataclass
 class SignRequest:
     """Convenience builder for the body of `POST /sign`."""
 

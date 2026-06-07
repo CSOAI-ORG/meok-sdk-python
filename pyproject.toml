@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "meok-sdk"
-version = "0.1.0"
+version = "0.1.1"
 description = "Official Python SDK for the MEOK Attestation API — sign + verify HMAC-signed compliance attestations across the MEOK trade-compliance ecosystem."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 license = "MIT"
 license-files = ["LICENSE"]
 keywords = [
@@ -35,6 +35,7 @@ classifiers = [
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
