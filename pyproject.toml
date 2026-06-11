@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "meok-sdk"
-version = "0.1.1"
+version = "3.1.0"
 description = "Official Python SDK for the MEOK Attestation API — sign + verify HMAC-signed compliance attestations across the MEOK trade-compliance ecosystem."
 readme = "README.md"
 requires-python = ">=3.9"
