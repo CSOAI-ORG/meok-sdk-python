@@ -10,18 +10,32 @@ from typing import Any
 class Region:
     """A regulatory region (e.g. EU, UK, US, CN)."""
 
-    code: str
+    id: str
     name: str
+    status: str
+    status_label: str
+    color: str
+    days_to_deadline: int = 0
+    deadline_date: str | None = None
     frameworks: list[str] = field(default_factory=list)
-    active: bool = True
+    agents: int = 0
+    compliance_score: int = 0
+    open_violations: int = 0
 
     @classmethod
     def from_json(cls, body: dict[str, Any]) -> "Region":
         return cls(
-            code=str(body.get("code", "")),
+            id=str(body.get("id", "")),
             name=str(body.get("name", "")),
+            status=str(body.get("status", "")),
+            status_label=str(body.get("status_label", "")),
+            color=str(body.get("color", "")),
+            days_to_deadline=int(body.get("days_to_deadline", 0)),
+            deadline_date=(str(body["deadline_date"]) if body.get("deadline_date") else None),
             frameworks=list(body.get("frameworks", [])),
-            active=bool(body.get("active", True)),
+            agents=int(body.get("agents", 0)),
+            compliance_score=int(body.get("compliance_score", 0)),
+            open_violations=int(body.get("open_violations", 0)),
         )
 
 
@@ -34,7 +48,6 @@ class Framework:
     region: str
     status: str
     effective_date: str | None = None
-    url: str | None = None
 
     @classmethod
     def from_json(cls, body: dict[str, Any]) -> "Framework":
@@ -44,7 +57,6 @@ class Framework:
             region=str(body.get("region", "")),
             status=str(body.get("status", "")),
             effective_date=(str(body["effective_date"]) if body.get("effective_date") else None),
-            url=(str(body["url"]) if body.get("url") else None),
         )
 
 
@@ -52,22 +64,22 @@ class Framework:
 class CrosswalkRow:
     """One row of the crosswalk mapping frameworks across regions."""
 
-    source_framework: str
-    target_framework: str
-    mapping_type: str
-    confidence: float
-    articles: list[str] = field(default_factory=list)
-    notes: str = ""
+    domain: str
+    eu_ai_act: str
+    nist_ai_rmf: str
+    iso_42001: str
+    tc260: str
+    risk: str
 
     @classmethod
     def from_json(cls, body: dict[str, Any]) -> "CrosswalkRow":
         return cls(
-            source_framework=str(body.get("source_framework", "")),
-            target_framework=str(body.get("target_framework", "")),
-            mapping_type=str(body.get("mapping_type", "")),
-            confidence=float(body.get("confidence", 0.0)),
-            articles=list(body.get("articles", [])),
-            notes=str(body.get("notes", "")),
+            domain=str(body.get("domain", "")),
+            eu_ai_act=str(body.get("eu_ai_act", "")),
+            nist_ai_rmf=str(body.get("nist_ai_rmf", "")),
+            iso_42001=str(body.get("iso_42001", "")),
+            tc260=str(body.get("tc260", "")),
+            risk=str(body.get("risk", "")),
         )
 
 
@@ -75,20 +87,31 @@ class CrosswalkRow:
 class DOMEStatus:
     """Status of the DOME (Data Observatory & Monitoring Engine)."""
 
+    version: str
+    generated_at: str
     status: str
-    last_updated: str | None = None
-    regions_online: int = 0
-    frameworks_tracked: int = 0
-    alerts_active: int = 0
+    layer: str
+    active_systems: int = 0
+    pdca_cycles: int = 0
+    mcp_servers: int = 0
+    open_violations: int = 0
+    avg_compliance: int = 0
+    pending_approvals: int = 0
 
     @classmethod
     def from_json(cls, body: dict[str, Any]) -> "DOMEStatus":
+        stats = body.get("stats", {})
         return cls(
+            version=str(body.get("version", "")),
+            generated_at=str(body.get("generated_at", "")),
             status=str(body.get("status", "")),
-            last_updated=(str(body["last_updated"]) if body.get("last_updated") else None),
-            regions_online=int(body.get("regions_online", 0)),
-            frameworks_tracked=int(body.get("frameworks_tracked", 0)),
-            alerts_active=int(body.get("alerts_active", 0)),
+            layer=str(body.get("layer", "")),
+            active_systems=int(stats.get("active_systems", 0)),
+            pdca_cycles=int(stats.get("pdca_cycles", 0)),
+            mcp_servers=int(stats.get("mcp_servers", 0)),
+            open_violations=int(stats.get("open_violations", 0)),
+            avg_compliance=int(stats.get("avg_compliance", 0)),
+            pending_approvals=int(stats.get("pending_approvals", 0)),
         )
 
 
@@ -96,26 +119,20 @@ class DOMEStatus:
 class CouncilVote:
     """A single council vote record."""
 
-    vote_id: str
     topic: str
-    region: str
-    outcome: str
-    date: str | None = None
-    ayes: int = 0
-    nays: int = 0
-    abstentions: int = 0
+    result: str
+    count: str
+    time: str
+    proposal_id: str
 
     @classmethod
     def from_json(cls, body: dict[str, Any]) -> "CouncilVote":
         return cls(
-            vote_id=str(body.get("vote_id", "")),
             topic=str(body.get("topic", "")),
-            region=str(body.get("region", "")),
-            outcome=str(body.get("outcome", "")),
-            date=(str(body["date"]) if body.get("date") else None),
-            ayes=int(body.get("ayes", 0)),
-            nays=int(body.get("nays", 0)),
-            abstentions=int(body.get("abstentions", 0)),
+            result=str(body.get("result", "")),
+            count=str(body.get("count", "")),
+            time=str(body.get("time", "")),
+            proposal_id=str(body.get("proposal_id", "")),
         )
 
 
@@ -124,23 +141,27 @@ class SigilVerification:
     """Result of verifying a sigil / certification identifier."""
 
     valid: bool
-    sigil_id: str
-    entity: str | None = None
-    regulation: str | None = None
+    cert_id: str
+    system_name: str = ""
+    framework: str = ""
+    compliance_score: float = 0.0
     issued_at: str | None = None
     expires_at: str | None = None
-    message: str = ""
+    issuer: str = ""
+    status: str = ""
 
     @classmethod
     def from_json(cls, body: dict[str, Any]) -> "SigilVerification":
         return cls(
             valid=bool(body.get("valid", False)),
-            sigil_id=str(body.get("sigil_id", "")),
-            entity=(str(body["entity"]) if body.get("entity") else None),
-            regulation=(str(body["regulation"]) if body.get("regulation") else None),
+            cert_id=str(body.get("cert_id", "")),
+            system_name=str(body.get("system_name", "")),
+            framework=str(body.get("framework", "")),
+            compliance_score=float(body.get("compliance_score", 0.0)),
             issued_at=(str(body["issued_at"]) if body.get("issued_at") else None),
             expires_at=(str(body["expires_at"]) if body.get("expires_at") else None),
-            message=str(body.get("message", "")),
+            issuer=str(body.get("issuer", "")),
+            status=str(body.get("status", "")),
         )
 
 
@@ -148,22 +169,18 @@ class SigilVerification:
 class RegulatoryCountdown:
     """A countdown to a regulatory deadline."""
 
-    framework_id: str
-    framework_name: str
-    region: str
-    deadline: str
+    name: str
     days_remaining: int
-    urgency: str
+    deadline: str
+    color: str
 
     @classmethod
     def from_json(cls, body: dict[str, Any]) -> "RegulatoryCountdown":
         return cls(
-            framework_id=str(body.get("framework_id", "")),
-            framework_name=str(body.get("framework_name", "")),
-            region=str(body.get("region", "")),
-            deadline=str(body.get("deadline", "")),
+            name=str(body.get("name", "")),
             days_remaining=int(body.get("days_remaining", 0)),
-            urgency=str(body.get("urgency", "")),
+            deadline=str(body.get("deadline", "")),
+            color=str(body.get("color", "")),
         )
 
 
@@ -171,14 +188,67 @@ class RegulatoryCountdown:
 class ComplianceMap:
     """Top-level response from ``/api/map.json``."""
 
+    version: str
+    generated_at: str
+    total_regions: int
+    total_frameworks: int
     regions: list[Region] = field(default_factory=list)
-    frameworks: list[Framework] = field(default_factory=list)
-    generated_at: str | None = None
+    global_stats: dict[str, int] = field(default_factory=dict)
 
     @classmethod
     def from_json(cls, body: dict[str, Any]) -> "ComplianceMap":
         return cls(
+            version=str(body.get("version", "")),
+            generated_at=str(body.get("generated_at", "")),
+            total_regions=int(body.get("total_regions", 0)),
+            total_frameworks=int(body.get("total_frameworks", 0)),
             regions=[Region.from_json(r) for r in body.get("regions", [])],
-            frameworks=[Framework.from_json(f) for f in body.get("frameworks", [])],
-            generated_at=(str(body["generated_at"]) if body.get("generated_at") else None),
+            global_stats=body.get("global_stats", {}),
         )
+
+
+@dataclass(frozen=True)
+class Crosswalk:
+    """Top-level response from ``/api/crosswalk.json``."""
+
+    version: str
+    generated_at: str
+    total_frameworks: int
+    total_domains: int
+    frameworks: list[Framework] = field(default_factory=list)
+    crosswalk: list[CrosswalkRow] = field(default_factory=list)
+
+    @classmethod
+    def from_json(cls, body: dict[str, Any]) -> "Crosswalk":
+        return cls(
+            version=str(body.get("version", "")),
+            generated_at=str(body.get("generated_at", "")),
+            total_frameworks=int(body.get("total_frameworks", 0)),
+            total_domains=int(body.get("total_domains", 0)),
+            frameworks=[Framework.from_json(f) for f in body.get("frameworks", [])],
+            crosswalk=[CrosswalkRow.from_json(r) for r in body.get("crosswalk", [])],
+        )
+
+
+@dataclass(frozen=True)
+class CouncilVotes:
+    """Top-level response from ``/api/council/votes.json``."""
+
+    version: str
+    generated_at: str
+    council: dict[str, Any] = field(default_factory=dict)
+    nodes: list[dict[str, Any]] = field(default_factory=list)
+    recent_votes: list[CouncilVote] = field(default_factory=list)
+    vote_counts: dict[str, int] = field(default_factory=dict)
+
+    @classmethod
+    def from_json(cls, body: dict[str, Any]) -> "CouncilVotes":
+        return cls(
+            version=str(body.get("version", "")),
+            generated_at=str(body.get("generated_at", "")),
+            council=body.get("council", {}),
+            nodes=body.get("nodes", []),
+            recent_votes=[CouncilVote.from_json(v) for v in body.get("recent_votes", [])],
+            vote_counts=body.get("vote_counts", {}),
+        )
+
