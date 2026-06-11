@@ -21,6 +21,11 @@ Async variant: :class:`AsyncMeokClient` mirrors the sync surface with `await`.
 """
 
 from .client import AsyncMeokClient, MeokClient
+from .csoai import (
+    AsyncCSOAIClient,
+    CSOAIClient,
+    CSOAIError,
+)
 from .errors import (
     MeokAPIError,
     MeokAuthError,
@@ -35,6 +40,8 @@ __all__ = [
     # Clients
     "MeokClient",
     "AsyncMeokClient",
+    "CSOAIClient",
+    "AsyncCSOAIClient",
     # Models
     "Cert",
     "VerifyResult",
@@ -46,4 +53,5 @@ __all__ = [
     "MeokAuthError",
     "MeokNetworkError",
     "MeokValidationError",
+    "CSOAIError",
 ]

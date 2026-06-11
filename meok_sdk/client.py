@@ -23,7 +23,7 @@ from .models import Cert, SignRequest, VerifyResult
 
 DEFAULT_BASE_URL = "https://meok-attestation-api.vercel.app"
 DEFAULT_TIMEOUT = 30.0
-USER_AGENT = "meok-sdk-python/0.1.0"
+USER_AGENT = "meok-sdk-python/0.1.1"
 
 
 def _build_headers(api_key: str | None, extra: dict[str, str] | None = None) -> dict[str, str]:
